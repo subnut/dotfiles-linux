@@ -1,0 +1,96 @@
+#!/bin/sh
+cd "$(dirname "$0")"
+
+if [ -e /etc/os-release ]
+then DISTRO="$(. /etc/os-release; echo $ID)"
+else DISTRO="undefined"
+fi
+
+main() {
+	rm -rf "./$DISTRO"
+
+	{ sed "/^$/d;/^~\\//s|~|$HOME|" | while read FILE; do
+	[ ${#FILE} -gt 0 ] && [ "$FILE" != "#${FILE###}" ] &&
+		run save "$FILE"
+	done } <<-EOF
+
+		/etc/doas.conf
+		/etc/profile.d/zsh.sh
+
+		~/.config/git
+		~/.config/zsh
+
+	EOF
+}
+
+save() {
+    DESTDIR="$(dirname "$1")"
+    if [ "${HOME}${DESTDIR#$HOME}" = "$DESTDIR" ]
+    then DESTDIR="$DISTRO/home${DESTDIR#$HOME}"
+    else DESTDIR="$DISTRO/root${DESTDIR}"
+    fi
+
+    [ ! -d "$DESTDIR" ] &&
+        mkdir -p "$DESTDIR"
+
+    if [ -d "$1" ]
+    then cp -pHR "$1" "$DESTDIR"
+    else cp -pP  "$1" "$DESTDIR"
+    fi
+}
+
+cd "$(dirname "$0")"
+touch stdout stderr; chmod 0600 stdout stderr
+trap 'rm -f stdout stderr' EXIT
+trap exit INT HUP TERM
+
+export CSI="$(printf '\033')["
+echo() { printf "%s\n" "$*"; }
+exists() { command -v "$1" >/dev/null 2>&1; }
+
+unset IS_TTY
+[ $FORCE_TTY ] || [ -t 1 ] && {
+    export IS_TTY=1
+    export BOLD="${CSI}1m"
+    export RESET="${CSI}m"
+    export RED=31 GREEN=32 YELLOW=33
+    for COLOR in RED GREEN YELLOW; do
+        export FG_$COLOR="${CSI}$(( $COLOR ))m"
+        export FG_${COLOR}_B="${CSI}$(( $COLOR + 60 ))m" # bright
+    done
+}
+
+if [ "$1" = "dry_${1#dry_}" ]; then
+    run() { echo "$*"; }
+elif [ ! $IS_TTY ]; then
+    run() { echo "$*"; "$@"; }
+else
+    run() {
+        # CMD="$(echo "$*" | sed "s;$HOME;\$HOME;g")"   # Show $HOME as "$HOME"
+        CMD="$(echo "$*" | sed "s;$HOME;~;g")"          # Show $HOME as "~"
+        echo "[${FG_YELLOW}${BOLD}WAIT${RESET}] $CMD"
+        "$@" 1>stdout 2>stderr
+        if [ $? -eq 0 ]
+        then printf "${CSI}1A${CSI}1G[${FG_GREEN}%s${RESET}]\n"        ' OK '
+        else printf "${CSI}1A${CSI}1G[${BOLD}${FG_RED_B}%s${RESET}]\n" 'FAIL'
+            if [ ! -s stdout ]
+            then cat stderr
+            else
+                print_output stdout
+                print_output stderr
+            fi
+        fi
+    }
+    print_output() {
+        FILE=$1; [ -s $FILE ] || return  # empty
+        exec 4<$FILE
+        FILE=${FILE#std}
+        while read -r LINE <&4; do
+            printf "${BOLD}%s: ${RESET}" $FILE
+            echo "$LINE"
+        done
+        exec 4<&-
+    }
+fi
+
+main "$@"

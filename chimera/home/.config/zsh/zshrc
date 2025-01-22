@@ -1,0 +1,71 @@
+## PATH
+export PATH=./:$PATH
+typeset -U PATH path	# remove duplicates
+
+## Command history
+HISTFILE=${ZDOTDIR:-$HOME}/.zhistory
+HISTSIZE=15000 SAVEHIST=1000000
+
+## Configuration
+setopt NO_BEEP
+setopt AUTO_CD                  # cd if command is dir name
+setopt CORRECT                  # [nyae]? (Also see $SPROMPT)
+setopt CDABLE_VARS              # `cd dir` - if dir doesn't exist, try ~dir
+setopt HIST_VERIFY              # VERY IMPORTANT. `sudo !!` <enter> causes expansion instead of execution
+setopt HIST_IGNORE_DUPS         # Ignore duplicate command lines from history
+setopt HIST_IGNORE_SPACE        # Command (or alias) prefixed by space are incognito
+setopt HIST_REDUCE_BLANKS       # Remove trailing whitespaces from commands in history
+setopt INC_APPEND_HISTORY       # Append to HISTFILE instead of overwriting it
+setopt INTERACTIVE_COMMENTS     # Allow comments using '#' in interactive mode
+setopt PRINT_EXIT_VALUE         # Print non-zero exitcode in interactive mode
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_MINUS
+setopt AUTO_PUSHD
+
+## Modules
+zmodload zsh/terminfo
+zmodload zsh/parameter
+
+## Set terminal title
+typeset -ga pre{cmd,exec}_functions
+function title_precmd	{ print -Pn "\e]0;%n@%m: %~\a"; }	# user@host: ~/cur/dir
+function title_preexec	{ printf "\e]0;%s\a" "${2//    / }"; }	# name of running command
+precmd_functions+=title_precmd
+preexec_functions+=title_preexec
+
+## Set terminal working directory
+typeset -ga chpwd_functions
+function term_chpwd { printf "\e]7;%s\a" "file://localhost$PWD" }
+chpwd_functions+=term_chpwd
+
+## Other config
+: 01; source $ZDOTDIR/aliases.zsh
+: 02; source $ZDOTDIR/zleconf.zsh
+: 03; source $ZDOTDIR/compconf.zsh
+: 04; source $ZDOTDIR/preprompt.zsh
+: 05; source $ZDOTDIR/myprompt.zsh
+: 06; source $ZDOTDIR/tprompt.zsh
+: 07; source $ZDOTDIR/misc.zsh
+: << END
+The ordering is necessary because of these reasons -
+
+zshcompsys(1)
+  INITIALIZATION
+    Use of compinit
+      [...] If completion styles are set up to perform expansion as well as
+      completion by default, and the TAB key is bound to expand-or-complete,
+      compinit will rebind it to complete-word; this is necessary to use the
+      correct form of expansion.
+
+  => zleconf.zsh -> compconf.zsh
+
+
+preprompt.zsh defines a ton of stuff that's used in the prompt definition,
+e.g. colours, helpers, etc. So, it must be sourced BEFORE myprompt.zsh.
+  => preprompt.zsh -> myprompt.zsh
+
+tprompt.zsh is conditionally initialized, based upon whether the TPROMPT
+variable is defined or not. Therefore, tprompt must be sourced AFTER myprompt.
+  => myprompt.zsh -> tprompt.zsh
+
+END

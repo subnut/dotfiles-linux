@@ -1,0 +1,20 @@
+[user]
+name = Subhaditya Nath
+email = sn03.general@gmail.com
+
+[init]
+defaultBranch = main
+
+[fetch]
+parallel = 0 ; reasonable default
+pruneTags = true
+prune = true
+
+[push]
+autoSetupRemote = true
+
+[help]
+autocorrect = prompt
+
+[blame]
+coloring = repeatedLines
