@@ -9,6 +9,10 @@ alias ls.='ls -dAF .*'
 exists fd && alias fd='LS_COLORS= fd'
 exists bat && alias batp='bat --style=header-filename'
 exists ncdu && alias ncdu='ncdu --color off'
+exists diff && diff --color - - && {
+	alias colordiff='diff --color=always'
+	alias diff='diff --color'
+}
 
 exists rg && {
 	alias rg='rg -.'

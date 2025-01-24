@@ -46,6 +46,7 @@ chpwd_functions+=term_chpwd
 : 05; source $ZDOTDIR/myprompt.zsh
 : 06; source $ZDOTDIR/tprompt.zsh
 : 07; source $ZDOTDIR/misc.zsh
+: 08; source $ZDOTDIR/env.zsh
 : << END
 The ordering is necessary because of these reasons -
 
