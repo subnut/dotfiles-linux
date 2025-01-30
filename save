@@ -20,6 +20,7 @@ main() {
 
 		~/.config/git
 		~/.config/zsh
+		~/.config/nvim
 
 		$(installed_pkgs)
 
