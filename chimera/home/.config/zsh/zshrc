@@ -1,7 +1,3 @@
-## PATH
-export PATH=./:$PATH
-typeset -U PATH path	# remove duplicates
-
 ## Command history
 HISTFILE=${ZDOTDIR:-$HOME}/.zhistory
 HISTSIZE=15000 SAVEHIST=1000000
