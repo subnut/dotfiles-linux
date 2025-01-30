@@ -20,6 +20,8 @@ main() {
 		~/.config/git
 		~/.config/zsh
 
+		$(installed_pkgs)
+
 	EOF
 }
 
@@ -37,6 +39,12 @@ save() {
     then cp -pHR "$1" "$DESTDIR"
     else cp -pP  "$1" "$DESTDIR"
     fi
+}
+
+installed_pkgs() {
+	case "$DISTRO" in
+		(chimera) echo "/etc/apk/world";;
+	esac
 }
 
 cd "$(dirname "$0")"
