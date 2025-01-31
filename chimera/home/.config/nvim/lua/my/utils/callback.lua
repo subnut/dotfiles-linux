@@ -6,8 +6,8 @@
 --]]
 
 return function(func, ...)
-	local args = { ... }
-	return function()
-		return func(unpack(args))
-	end
+  local args = { ... }
+  return function()
+    return func(unpack(args))
+  end
 end

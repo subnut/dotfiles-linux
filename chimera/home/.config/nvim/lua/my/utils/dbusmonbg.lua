@@ -76,4 +76,3 @@ stderr:read_start(function(err, data)
 end)
 
 return M
--- vim:et:ts=2:sts=2:sw=2:
