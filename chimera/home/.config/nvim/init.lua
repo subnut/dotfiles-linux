@@ -29,3 +29,6 @@ require'my.utils.keymap'.n = {
 
 -- Start monitoring dbus
 require'my.utils.dbusmonbg'
+
+-- Load plugins
+require'my.utils.pluginit'
