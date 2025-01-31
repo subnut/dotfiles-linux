@@ -1,6 +1,4 @@
 #!/bin/sh
-cd "$(dirname "$0")"
-
 if [ -e /etc/os-release ]
 then DISTRO="$(. /etc/os-release; echo $ID)"
 else DISTRO="undefined"
