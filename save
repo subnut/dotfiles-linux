@@ -13,7 +13,6 @@ main() {
 	done } <<-EOF
 
 		/etc/keyd
-		/etc/doas.conf
 		/etc/profile.d/zsh.sh
 
 		~/.config/git
