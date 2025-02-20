@@ -24,7 +24,7 @@ opts.stdio = { nil, stdout, stderr }
 
 local onexit = function(code, signal)
   local str = "[EXIT] dbus-monitor exited (exit code: %d)"
-  local cb = require'my.utils'.callback
+  local cb = require'my.utils.callback'
   vim.schedule(cb(
     vim.notify,
     str:format(code),
@@ -68,7 +68,7 @@ stdout:read_start(stdout_handler)
 stderr:read_start(function(err, data)
   assert(not err, err)
   local str = "[STDERR] dbus-monitor: %s"
-  local cb = require'my.utils'.callback
+  local cb = require'my.utils.callback'
   vim.schedule(cb(
     vim.notify,
     str:format(data),
