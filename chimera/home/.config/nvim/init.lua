@@ -23,8 +23,8 @@ require'my.utils.keymap'.n = {
     ["<leader>p"] = '"+p',
     ["<leader>l"] = "<cmd>set list!<CR>",
     ["<leader>w"] = "<cmd>set wrap!<CR>",
-    ["<leader>n"] = "<cmd>set rnu!<CR>",
-    ["<leader>N"] = "<cmd>set nu!<CR>",
+    ["<leader>N"] = "<cmd>set rnu!<CR>",
+    ["<leader>n"] = "<cmd>set nu!<CR>",
 }
 
 -- Start monitoring dbus
