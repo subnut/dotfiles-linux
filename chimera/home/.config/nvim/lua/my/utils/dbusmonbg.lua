@@ -22,15 +22,6 @@ local stdout = uv.new_pipe()
 local stderr = uv.new_pipe()
 opts.stdio = { nil, stdout, stderr }
 
-local onexit = function(code, signal)
-  local str = "[EXIT] dbus-monitor exited (exit code: %d)"
-  local cb = require'my.utils.callback'
-  vim.schedule(cb(
-    vim.notify,
-    str:format(code),
-    vim.log.levels.INFO))
-end
-
 opts.env = {}
 local env = uv.os_environ()
 for key,val in pairs(env) do
@@ -60,7 +51,30 @@ local stdout_handler = function (err, data)
   end
 end
 
-M.handle, M.pid = uv.spawn(
+local sigtbl = { insert = table.insert }
+for key,val in pairs(uv.constants) do
+    if key:sub(1, 3) == "SIG" then
+        sigtbl:insert(val, key)
+    end
+end
+local onexit = function(code, signal)
+  local cb = require'my.utils.callback'
+  local str = "[EXIT] dbus-monitor exited "
+  if signal == 0
+  then
+      str = str .. "(exit code: %d)"
+      str = str:format(code)
+  else
+      str = str .. "(signal: %s)"
+      str = str:format(sigtbl[signal])
+  end
+  vim.schedule(cb(
+    vim.notify, str,
+    vim.log.levels.INFO))
+end
+
+opts.detached = false
+M.process, M.pid = uv.spawn(
   cmd, opts, onexit
 )
 
