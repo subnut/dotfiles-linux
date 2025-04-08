@@ -75,4 +75,10 @@ stderr:read_start(function(err, data)
     vim.log.levels.INFO))
 end)
 
+vim.api.nvim_create_autocmd("VimLeave", {
+    desc = "[dbusmonbg] autocmd to kill dbus-monitor",
+    callback = function(_) M.process:kill(uv.constants.SIGHUP) end,
+    once = true,
+})
+
 return M
